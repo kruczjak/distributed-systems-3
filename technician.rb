@@ -8,6 +8,7 @@ class Technician
 
     connect_and_create_channel
     open_doctor_and_technician_queues
+    subscribe_to_admin_queue
   end
 
   def loop_program

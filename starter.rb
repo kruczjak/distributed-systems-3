@@ -7,6 +7,7 @@ Bundler.require
 require_all 'lib'
 require_relative 'doctor'
 require_relative 'technician'
+require_relative 'admin'
 
 p "Starting #{ARGV}"
 

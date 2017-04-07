@@ -6,6 +6,7 @@ class Doctor
 
     connect_and_create_channel
     open_doctor_and_technician_queues
+    subscribe_to_admin_queue
   end
 
   def loop_program
@@ -43,9 +44,5 @@ class Doctor
       routing_key: part,
       reply_to: @doctor_id,
     )
-  end
-
-  def read_from_console
-    STDIN.gets.chomp
   end
 end
