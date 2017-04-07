@@ -23,8 +23,8 @@ class Technician
   private
 
   def start_listening_on_tasks
-    @new_task_queue = @new_task_queue.bind(tasks_topic, routing_key: @specialities[0])
-    @new_task_queue = @new_task_queue.bind(tasks_topic, routing_key: @specialities[1])
+    @new_task_queue = @new_task_queue.bind(tasks_exchange, routing_key: @specialities[0])
+    @new_task_queue = @new_task_queue.bind(tasks_exchange, routing_key: @specialities[1])
 
     @new_task_queue.subscribe(manual_ack: true) do |delivery_info, properties, payload|
       # puts "Received #{payload}, message properties are #{properties.inspect} and #{delivery_info.inspect}".blue
@@ -36,8 +36,8 @@ class Technician
       @channel.acknowledge(delivery_info.delivery_tag, false)
       puts 'Job done, let\'s respond'.green
 
-      tasks_topic.publish(
-        "Hi!, Job #{payload} is done :)",
+      tasks_exchange.publish(
+        "Hi!, Job #{delivery_info[:routing_key]}: #{payload} is done :)",
         routing_key: properties[:reply_to],
       )
     end

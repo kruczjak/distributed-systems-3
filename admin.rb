@@ -22,7 +22,7 @@ class Admin
   end
 
   def bind_for_listening_all
-    @admin_queue = @admin_queue.bind(tasks_topic, routing_key: '#')
+    @admin_queue = @admin_queue.bind(tasks_exchange, routing_key: '#')
 
     @admin_queue.subscribe do |delivery_info, properties, payload|
       puts '-------------------------------------------------------'.white

@@ -33,13 +33,13 @@ class Doctor
   private
 
   def bind_for_task_done_queue
-    @task_done_queue = @task_done_queue.bind(tasks_topic, routing_key: @doctor_id)
+    @task_done_queue = @task_done_queue.bind(tasks_exchange, routing_key: @doctor_id)
 
     @task_done_queue.subscribe { |_, _, payload| puts "#{payload}".blue }
   end
 
   def send_task(part, patient_name, message)
-    tasks_topic.publish(
+    tasks_exchange.publish(
       "#{patient_name};#{message}",
       routing_key: part,
       reply_to: @doctor_id,

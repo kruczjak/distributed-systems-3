@@ -1,7 +1,7 @@
 module RabbitMqCommon
   MEDICAL_TASK_QUEUE_NAME = 'medical.tasks'.freeze
-  TASK_DONE_QUEUE_NAME = 'medical.done'.freeze
-  ADMIN_QUEUE_NAME = 'medical.admin'.freeze
+  TASK_DONE_QUEUE_NAME = 'medical.result'.freeze
+  ADMIN_QUEUE_NAME = 'medical.log'.freeze
   AVAILABLE_SPECIALITIES = %w(knee elbow ankle).freeze
 
   def connect_and_create_channel
@@ -20,8 +20,8 @@ module RabbitMqCommon
     @admin_message_queue.bind(admin_exchange).subscribe { |_, _, payload| puts "#{payload}".red }
   end
 
-  def tasks_topic
-    @tasks_topic ||= @channel.topic('tasks', auto_delete: true)
+  def tasks_exchange
+    @tasks_exchange ||= @channel.topic('tasks', auto_delete: true)
   end
 
   def admin_exchange
