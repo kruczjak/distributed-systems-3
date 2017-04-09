@@ -7,7 +7,6 @@ class Technician
     @specialities.each { |s| raise 'Wrong speciality' unless RabbitMqCommon::AVAILABLE_SPECIALITIES.include?(s) }
 
     connect_and_create_channel
-    open_doctor_and_technician_queues
     subscribe_to_admin_queue
   end
 
@@ -23,15 +22,19 @@ class Technician
   private
 
   def start_listening_on_tasks
-    @new_task_queue = @new_task_queue.bind(tasks_exchange, routing_key: @specialities[0])
-    @new_task_queue = @new_task_queue.bind(tasks_exchange, routing_key: @specialities[1])
+    listen_on_one_queue(@specialities[0])
+    listen_on_one_queue(@specialities[1])
+  end
 
-    @new_task_queue.subscribe(manual_ack: true) do |delivery_info, properties, payload|
+  def listen_on_one_queue(speciality)
+    @speciality_queue = @channel.queue("#{RabbitMqCommon::MEDICAL_QUEUE_NAME}.#{speciality}", durable: true, auto_delete: false)
+    @speciality_queue = @speciality_queue.bind(tasks_exchange, routing_key: speciality)
+    @speciality_queue.subscribe(manual_ack: true) do |delivery_info, properties, payload|
       # puts "Received #{payload}, message properties are #{properties.inspect} and #{delivery_info.inspect}".blue
       puts "Doctor #{properties[:reply_to]} wants to check " \
            "#{delivery_info[:routing_key]} for #{payload.split(';')[0]}".blue
 
-      sleep 10
+      sleep 5
 
       @channel.acknowledge(delivery_info.delivery_tag, false)
       puts 'Job done, let\'s respond'.green

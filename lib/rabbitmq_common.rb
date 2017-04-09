@@ -1,6 +1,5 @@
 module RabbitMqCommon
-  MEDICAL_TASK_QUEUE_NAME = 'medical.tasks'.freeze
-  TASK_DONE_QUEUE_NAME = 'medical.result'.freeze
+  MEDICAL_QUEUE_NAME = 'medical.'.freeze
   ADMIN_QUEUE_NAME = 'medical.log'.freeze
   AVAILABLE_SPECIALITIES = %w(knee elbow ankle).freeze
 
@@ -10,13 +9,8 @@ module RabbitMqCommon
     @channel = @connection.create_channel
   end
 
-  def open_doctor_and_technician_queues
-    @task_done_queue = @channel.queue(TASK_DONE_QUEUE_NAME, durable: true, auto_delete: false)
-    @new_task_queue = @channel.queue(MEDICAL_TASK_QUEUE_NAME, durable: true, auto_delete: false)
-    @admin_message_queue = @channel.queue('', durable: true, auto_delete: false)
-  end
-
   def subscribe_to_admin_queue
+    @admin_message_queue = @channel.queue('', durable: true, auto_delete: false)
     @admin_message_queue.bind(admin_exchange).subscribe { |_, _, payload| puts "#{payload}".red }
   end
 

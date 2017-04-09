@@ -5,7 +5,6 @@ class Doctor
     @doctor_id = SecureRandom.uuid
 
     connect_and_create_channel
-    open_doctor_and_technician_queues
     subscribe_to_admin_queue
   end
 
@@ -33,9 +32,10 @@ class Doctor
   private
 
   def bind_for_task_done_queue
-    @task_done_queue = @task_done_queue.bind(tasks_exchange, routing_key: @doctor_id)
+    @queue = @channel.queue('', durable: true, auto_delete: false)
+    @queue = @queue.bind(tasks_exchange, routing_key: @doctor_id)
 
-    @task_done_queue.subscribe { |_, _, payload| puts "#{payload}".blue }
+    @queue.subscribe { |_, _, payload| puts "#{payload}".blue }
   end
 
   def send_task(part, patient_name, message)
